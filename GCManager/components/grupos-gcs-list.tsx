@@ -175,7 +175,7 @@ export function GruposGcsList() {
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Grupos de GC's</h1>
+          <h1 className="text-3xl font-bold">Grupos de GC&apos;s</h1>
           <p className="text-muted-foreground mt-1">
             Gerenciar grupos de Grupos de Casas
           </p>

@@ -234,7 +234,7 @@ export function GcsList() {
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">GC's</h1>
+          <h1 className="text-3xl font-bold">GC&apos;s</h1>
           <p className="text-muted-foreground mt-1">
             Gerenciar Grupos de Casas
           </p>

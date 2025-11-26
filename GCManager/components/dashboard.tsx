@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
@@ -29,16 +29,7 @@ export function Dashboard() {
   const [insights, setInsights] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    if (!user) {
-      setLoading(false)
-      return
-    }
-    if (peopleLoading) return
-    loadDashboardData()
-  }, [user, people, period, category, peopleLoading])
-
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     if (!user) return
     setLoading(true)
 
@@ -144,7 +135,16 @@ export function Dashboard() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user, people, period, category, supabase])
+
+  useEffect(() => {
+    if (!user) {
+      setLoading(false)
+      return
+    }
+    if (peopleLoading) return
+    loadDashboardData()
+  }, [user, people, period, category, peopleLoading, loadDashboardData])
 
   if (loading || peopleLoading) {
     return (

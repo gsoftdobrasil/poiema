@@ -12,16 +12,12 @@ export default function Home() {
 
   useEffect(() => {
     // Só redirecionar se realmente não houver usuário após carregar
-    // Aumentar delay para evitar loops
+    // Evitar loops com verificação mais rigorosa
     if (!loading && !user) {
-      const timer = setTimeout(() => {
-        if (!user) {
-          window.location.href = "/login"
-        }
-      }, 500)
-      return () => clearTimeout(timer)
+      // Usar replace em vez de href para evitar histórico
+      router.replace("/login")
     }
-  }, [user, loading])
+  }, [user, loading, router])
 
   if (loading) {
     return (

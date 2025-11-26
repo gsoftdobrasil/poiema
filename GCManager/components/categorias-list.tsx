@@ -197,7 +197,7 @@ export function CategoriasList() {
         <div>
           <h1 className="text-3xl font-bold">Categorias</h1>
           <p className="text-muted-foreground mt-1">
-            Gerenciar categorias de GC's
+            Gerenciar categorias de GC&apos;s
           </p>
         </div>
         <Button onClick={() => handleOpenDialog()}>

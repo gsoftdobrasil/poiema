@@ -1,11 +1,18 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { createClient } from "@/utils/supabase/middleware"
+import { type NextRequest } from "next/server"
+import { updateSession } from "@/utils/supabase/middleware"
 
 export async function middleware(request: NextRequest) {
-  // TEMPORARIAMENTE DESABILITADO: Retornar sem fazer nada
-  // Isso vai parar o loop infinito
-  // TODO: Reativar depois que o login estiver funcionando
-  return NextResponse.next()
+  // Ignorar requisições para arquivos estáticos e API routes
+  if (
+    request.nextUrl.pathname.startsWith('/_next') ||
+    request.nextUrl.pathname.startsWith('/api') ||
+    request.nextUrl.pathname.includes('.')
+  ) {
+    return
+  }
+
+  // update user's auth session
+  return await updateSession(request)
 }
 
 export const config = {

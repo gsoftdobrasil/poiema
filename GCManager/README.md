@@ -1,10 +1,10 @@
 # WelcomeApp
 
-Aplicativo Web para Gestão de Grupos de Casas (GC) de igrejas.
+Aplicativo Web para Gestão de GC's de igrejas.
 
 ## Descrição
 
-O WelcomeApp é uma aplicação UI-first desenvolvida para gerenciar grupos de casas de igrejas. O sistema permite cadastrar rapidamente visitantes na porta da igreja, registrar abordagens e encaixes em GC's, além de gerenciar categorias, grupos e pessoas.
+O WelcomeApp é uma aplicação UI-first desenvolvida para gerenciar GC's de igrejas. O sistema permite cadastrar rapidamente visitantes na porta da igreja, registrar abordagens e encaixes em GC's, além de gerenciar categorias, grupos e pessoas.
 
 ## Tecnologias
 
@@ -24,7 +24,7 @@ O WelcomeApp é uma aplicação UI-first desenvolvida para gerenciar grupos de c
 - Filtros por período (7 dias, 30 dias, total) e categoria
 
 ### CRUD de GC's
-- Listagem, criação, edição e exclusão de Grupos de Casas
+- Listagem, criação, edição e exclusão de GC's
 - Campos: descrição, líder, grupo, categoria, local, endereço, dia e horário
 
 ### CRUD de Grupos de GC's

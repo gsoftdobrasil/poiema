@@ -1,6 +1,6 @@
 "use client"
 
-import { Sidebar } from "@/components/sidebar"
+import { AppLayout } from "@/components/app-layout"
 import { Dashboard } from "@/components/dashboard"
 import { useAuth } from "@/components/auth-provider"
 import { useRouter } from "next/navigation"
@@ -34,12 +34,9 @@ export default function Home() {
   }
 
   return (
-    <div className="flex h-screen">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto">
-        <Dashboard />
-      </main>
-    </div>
+    <AppLayout>
+      <Dashboard />
+    </AppLayout>
   )
 }
 

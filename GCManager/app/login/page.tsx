@@ -6,8 +6,16 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { createClient } from "@/utils/supabase/client"
 import { useToast } from "@/components/ui/use-toast"
+import { Mail } from "lucide-react"
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true)
@@ -15,6 +23,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [fullName, setFullName] = useState("")
   const [loading, setLoading] = useState(false)
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false)
+  const [confirmationEmail, setConfirmationEmail] = useState("")
   const router = useRouter()
   const { toast } = useToast()
   const supabase = createClient()
@@ -68,12 +78,26 @@ export default function LoginPage() {
             data: {
               full_name: fullName,
             },
+            emailRedirectTo: `${window.location.origin}/`,
           },
         })
 
         if (error) throw error
 
-        if (data.user) {
+        // Verificar se precisa confirmar e-mail
+        if (data.user && !data.session) {
+          // E-mail precisa ser confirmado
+          setConfirmationEmail(email)
+          setShowEmailConfirmation(true)
+          // Limpar formulário
+          setEmail("")
+          setPassword("")
+          setFullName("")
+          return
+        }
+
+        if (data.user && data.session) {
+          // Usuário já está logado (e-mail não precisa confirmação)
           // Criar profile
           await supabase.from("profiles").insert({
             id: data.user.id,
@@ -152,6 +176,7 @@ export default function LoginPage() {
               {loading ? "Carregando..." : isLogin ? "Entrar" : "Criar Conta"}
             </Button>
           </form>
+
           <div className="mt-4 text-center text-sm">
             <button
               type="button"
@@ -165,6 +190,41 @@ export default function LoginPage() {
           </div>
         </CardContent>
       </Card>
+
+      <Dialog open={showEmailConfirmation} onOpenChange={setShowEmailConfirmation}>
+        <DialogContent>
+          <DialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-primary/10 rounded-full">
+                <Mail className="h-5 w-5 text-primary" />
+              </div>
+              <DialogTitle>Confirme seu e-mail</DialogTitle>
+            </div>
+            <DialogDescription className="pt-2">
+              Enviamos um e-mail de confirmação para <strong>{confirmationEmail}</strong>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <p className="text-sm text-muted-foreground">
+              Por favor, verifique sua caixa de entrada e clique no link de confirmação para ativar sua conta.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Se você não receber o e-mail em alguns minutos, verifique sua pasta de spam.
+            </p>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowEmailConfirmation(false)
+                setIsLogin(true)
+              }}
+            >
+              Entendi
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

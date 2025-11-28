@@ -31,6 +31,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Label } from "@/components/ui/label"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { PhotoUpload } from "@/components/ui/photo-upload"
 import { useGroupGcs, useSupabase } from "@/lib/hooks/use-supabase"
 import { useToast } from "@/components/ui/use-toast"
 import { Plus, Pencil, Trash2, Search } from "lucide-react"
@@ -47,6 +49,8 @@ export function GruposGcsList() {
   const [formData, setFormData] = useState({
     nome_grupo: "",
     nome_lider: "",
+    foto_coordenador: "",
+    contato_coordenador: "",
     observacao: "",
   })
 
@@ -61,6 +65,8 @@ export function GruposGcsList() {
       setFormData({
         nome_grupo: groupGc.nome_grupo,
         nome_lider: groupGc.nome_lider,
+        foto_coordenador: groupGc.foto_coordenador || "",
+        contato_coordenador: groupGc.contato_coordenador || "",
         observacao: groupGc.observacao || "",
       })
     } else {
@@ -68,6 +74,8 @@ export function GruposGcsList() {
       setFormData({
         nome_grupo: "",
         nome_lider: "",
+        foto_coordenador: "",
+        contato_coordenador: "",
         observacao: "",
       })
     }
@@ -93,6 +101,8 @@ export function GruposGcsList() {
           .update({
             nome_grupo: formData.nome_grupo,
             nome_lider: formData.nome_lider,
+            foto_coordenador: formData.foto_coordenador || null,
+            contato_coordenador: formData.contato_coordenador || null,
             observacao: formData.observacao,
           })
           .eq("id", selectedGroupGc.id)
@@ -109,6 +119,8 @@ export function GruposGcsList() {
           .insert({
             nome_grupo: formData.nome_grupo,
             nome_lider: formData.nome_lider,
+            foto_coordenador: formData.foto_coordenador || null,
+            contato_coordenador: formData.contato_coordenador || null,
             observacao: formData.observacao,
             user_id: user.id,
           })
@@ -175,14 +187,14 @@ export function GruposGcsList() {
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Grupos de GC&apos;s</h1>
+          <h1 className="text-3xl font-bold">Coordenação</h1>
           <p className="text-muted-foreground mt-1">
-            Gerenciar grupos de Grupos de Casas
+            Gerenciar coordenações de GCs
           </p>
         </div>
         <Button onClick={() => handleOpenDialog()}>
           <Plus className="mr-2 h-4 w-4" />
-          Novo Grupo
+          Novo Coordenador
         </Button>
       </div>
 
@@ -190,7 +202,7 @@ export function GruposGcsList() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar por nome ou líder..."
+            placeholder="Buscar por coordenação ou coordenador..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
@@ -202,8 +214,10 @@ export function GruposGcsList() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nome do Grupo</TableHead>
-              <TableHead>Líder</TableHead>
+              <TableHead>Foto</TableHead>
+              <TableHead>Coordenação</TableHead>
+              <TableHead>Coordenador</TableHead>
+              <TableHead>Contato</TableHead>
               <TableHead>Observação</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -211,15 +225,32 @@ export function GruposGcsList() {
           <TableBody>
             {filteredGroupGcs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                   Nenhum grupo encontrado
                 </TableCell>
               </TableRow>
             ) : (
               filteredGroupGcs.map((group) => (
                 <TableRow key={group.id}>
+                  <TableCell>
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={group.foto_coordenador || undefined} />
+                      <AvatarFallback>
+                        {group.nome_grupo.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </TableCell>
                   <TableCell className="font-medium">{group.nome_grupo}</TableCell>
-                  <TableCell>{group.nome_lider}</TableCell>
+                  <TableCell>
+                    <span>{group.nome_lider}</span>
+                  </TableCell>
+                  <TableCell>
+                    {group.contato_coordenador ? (
+                      <span className="text-sm">{group.contato_coordenador}</span>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">-</span>
+                    )}
+                  </TableCell>
                   <TableCell className="max-w-md truncate">{group.observacao || "-"}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
@@ -249,26 +280,47 @@ export function GruposGcsList() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{selectedGroupGc ? "Editar Grupo de GC" : "Novo Grupo de GC"}</DialogTitle>
+            <DialogTitle>{selectedGroupGc ? "Editar Coordenador" : "Novo Coordenador"}</DialogTitle>
             <DialogDescription>
-              {selectedGroupGc ? "Atualize as informações do grupo" : "Preencha os dados do novo grupo"}
+              {selectedGroupGc ? "Atualize as informações do coordenador" : "Preencha os dados do novo coordenador"}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="nome_grupo">Nome do Grupo *</Label>
+              <Label htmlFor="nome_grupo">Coordenação *</Label>
               <Input
                 id="nome_grupo"
                 value={formData.nome_grupo}
                 onChange={(e) => setFormData({ ...formData, nome_grupo: e.target.value })}
               />
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="nome_lider">Nome do Coordenador *</Label>
+                <Input
+                  id="nome_lider"
+                  value={formData.nome_lider}
+                  onChange={(e) => setFormData({ ...formData, nome_lider: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="contato_coordenador">Contato (WhatsApp) do Coordenador</Label>
+                <Input
+                  id="contato_coordenador"
+                  type="tel"
+                  placeholder="(00) 00000-0000"
+                  value={formData.contato_coordenador}
+                  onChange={(e) => setFormData({ ...formData, contato_coordenador: e.target.value })}
+                />
+              </div>
+            </div>
             <div className="grid gap-2">
-              <Label htmlFor="nome_lider">Nome do Líder *</Label>
-              <Input
-                id="nome_lider"
-                value={formData.nome_lider}
-                onChange={(e) => setFormData({ ...formData, nome_lider: e.target.value })}
+              <PhotoUpload
+                currentPhotoUrl={formData.foto_coordenador}
+                onUploadComplete={(url) => setFormData({ ...formData, foto_coordenador: url })}
+                folder="group-gcs"
+                fileName={selectedGroupGc ? `coordenador-${selectedGroupGc.id}` : undefined}
+                label="Foto do Coordenador"
               />
             </div>
             <div className="grid gap-2">

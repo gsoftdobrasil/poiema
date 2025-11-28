@@ -1,9 +1,7 @@
 export interface Category {
   id: number
   descricao: string
-  faixaEtariaMin: number
-  faixaEtariaMax: number
-  tipo: "casais" | "solteiros_m" | "solteiros_f" | "jovens_m" | "jovens_f" | "adolescentes"
+  tipo: "masculino" | "feminino" | "casais" | "influa" | "infantil"
 }
 
 export interface GroupGc {
@@ -72,37 +70,27 @@ export const initialCategories: Category[] = [
   {
     id: 1,
     descricao: "GC Casais Jovens",
-    faixaEtariaMin: 20,
-    faixaEtariaMax: 35,
     tipo: "casais"
   },
   {
     id: 2,
     descricao: "GC Casais Adultos",
-    faixaEtariaMin: 36,
-    faixaEtariaMax: 60,
     tipo: "casais"
   },
   {
     id: 3,
     descricao: "GC Jovens Masculino",
-    faixaEtariaMin: 16,
-    faixaEtariaMax: 25,
-    tipo: "jovens_m"
+    tipo: "masculino"
   },
   {
     id: 4,
     descricao: "GC Jovens Feminino",
-    faixaEtariaMin: 16,
-    faixaEtariaMax: 25,
-    tipo: "jovens_f"
+    tipo: "feminino"
   },
   {
     id: 5,
     descricao: "GC Adolescentes Misto",
-    faixaEtariaMin: 13,
-    faixaEtariaMax: 18,
-    tipo: "adolescentes"
+    tipo: "influa"
   }
 ]
 

@@ -5,6 +5,8 @@ import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/components/auth-provider"
+import { useProfile } from "@/lib/hooks/use-supabase"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   LayoutDashboard,
   Users,
@@ -12,15 +14,20 @@ import {
   Tag,
   User,
   Home,
-  LogOut
+  LogOut,
+  MapPin,
+  UserCircle
 } from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "GC's", href: "/gcs", icon: Home },
-  { name: "Grupos de GC's", href: "/grupos-gcs", icon: FolderTree },
+  { name: "Coordenação", href: "/grupos-gcs", icon: FolderTree },
   { name: "Categorias", href: "/categorias", icon: Tag },
   { name: "Pessoas", href: "/pessoas", icon: Users },
+  { name: "Liderança", href: "/lideranca", icon: UserCircle },
+  { name: "Mapa de GCs", href: "/mapa-gcs", icon: MapPin },
 ]
 
 const bottomNavigation = [
@@ -30,7 +37,8 @@ const bottomNavigation = [
 export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
-  const { signOut } = useAuth()
+  const { signOut, user } = useAuth()
+  const { profile } = useProfile()
 
   const handleSignOut = async () => {
     await signOut()
@@ -38,11 +46,41 @@ export function Sidebar() {
     router.refresh()
   }
 
+  const getInitials = (name: string | null | undefined) => {
+    if (!name) return "U"
+    return name
+      .split(" ")
+      .map(n => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2)
+  }
+
+  const displayName = profile?.full_name || user?.email?.split("@")[0] || "Usuário"
+  const displayEmail = user?.email || ""
+
   return (
-    <div className="flex h-screen w-64 flex-col border-r bg-card">
-      <div className="flex h-16 items-center border-b px-6">
-        <h1 className="text-xl font-semibold">WelcomeApp</h1>
+    <div className="flex h-screen w-64 flex-col bg-card">
+      <div className="flex h-16 gap-[5px] items-center justify-between border-b px-6">
+        <img src="./Poiema.svg" alt="Poiema" className="w-6 h-6" />
+        <h1 className="text-xl font-semibold">Welcome</h1>
+        <ThemeToggle />
       </div>
+      {user && (
+        <div className="border-b px-4 py-3 bg-muted/30">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="text-xs">
+                {getInitials(profile?.full_name || user?.email)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{displayName}</p>
+              <p className="text-xs text-muted-foreground truncate">{displayEmail}</p>
+            </div>
+          </div>
+        </div>
+      )}
       <nav className="flex-1 space-y-1 px-3 py-4">
         {navigation.map((item) => {
           const isActive = pathname === item.href

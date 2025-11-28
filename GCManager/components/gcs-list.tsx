@@ -31,6 +31,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Label } from "@/components/ui/label"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { LazyImage } from "@/components/ui/lazy-image"
+import { Pagination } from "@/components/ui/pagination"
+import { usePagination } from "@/lib/hooks/use-pagination"
+import { PhotoUpload } from "@/components/ui/photo-upload"
 import {
   Select,
   SelectContent,
@@ -57,7 +62,14 @@ export function GcsList() {
     id_grupo: null as number | null,
     descricao: "",
     lider: "",
+    lider_treinamento: "",
+    contato_lider: "",
+    contato_lider_treinamento: "",
+    foto_lider: "",
+    anfitrioes: "",
+    contato_anfitrioes: "",
     descricao_local: "",
+    ponto_referencia: "",
     endereco_rua: "",
     endereco_numero: "",
     endereco_bairro: "",
@@ -72,6 +84,11 @@ export function GcsList() {
     gc.lider.toLowerCase().includes(search.toLowerCase())
   )
 
+  const { paginatedData, currentPage, totalPages, goToPage } = usePagination({
+    data: filteredGcs,
+    itemsPerPage: 10,
+  })
+
   const handleOpenDialog = (gc?: Gc) => {
     if (gc) {
       setSelectedGc(gc)
@@ -79,7 +96,14 @@ export function GcsList() {
         id_grupo: gc.id_grupo,
         descricao: gc.descricao,
         lider: gc.lider,
+        lider_treinamento: gc.lider_treinamento || "",
+        contato_lider: gc.contato_lider || "",
+        contato_lider_treinamento: gc.contato_lider_treinamento || "",
+        foto_lider: gc.foto_lider || "",
+        anfitrioes: gc.anfitrioes || "",
+        contato_anfitrioes: gc.contato_anfitrioes || "",
         descricao_local: gc.descricao_local || "",
+        ponto_referencia: gc.ponto_referencia || "",
         endereco_rua: gc.endereco_rua || "",
         endereco_numero: gc.endereco_numero || "",
         endereco_bairro: gc.endereco_bairro || "",
@@ -94,7 +118,14 @@ export function GcsList() {
         id_grupo: null,
         descricao: "",
         lider: "",
+        lider_treinamento: "",
+        contato_lider: "",
+        contato_lider_treinamento: "",
+        foto_lider: "",
+        anfitrioes: "",
+        contato_anfitrioes: "",
         descricao_local: "",
+        ponto_referencia: "",
         endereco_rua: "",
         endereco_numero: "",
         endereco_bairro: "",
@@ -127,7 +158,14 @@ export function GcsList() {
             id_grupo: formData.id_grupo,
             descricao: formData.descricao,
             lider: formData.lider,
+            lider_treinamento: formData.lider_treinamento || null,
+            contato_lider: formData.contato_lider || null,
+            contato_lider_treinamento: formData.contato_lider_treinamento || null,
+            foto_lider: formData.foto_lider || null,
+            anfitrioes: formData.anfitrioes || null,
+            contato_anfitrioes: formData.contato_anfitrioes || null,
             descricao_local: formData.descricao_local,
+            ponto_referencia: formData.ponto_referencia || null,
             endereco_rua: formData.endereco_rua,
             endereco_numero: formData.endereco_numero,
             endereco_bairro: formData.endereco_bairro,
@@ -151,7 +189,14 @@ export function GcsList() {
             id_grupo: formData.id_grupo,
             descricao: formData.descricao,
             lider: formData.lider,
+            lider_treinamento: formData.lider_treinamento || null,
+            contato_lider: formData.contato_lider || null,
+            contato_lider_treinamento: formData.contato_lider_treinamento || null,
+            foto_lider: formData.foto_lider || null,
+            anfitrioes: formData.anfitrioes || null,
+            contato_anfitrioes: formData.contato_anfitrioes || null,
             descricao_local: formData.descricao_local,
+            ponto_referencia: formData.ponto_referencia || null,
             endereco_rua: formData.endereco_rua,
             endereco_numero: formData.endereco_numero,
             endereco_bairro: formData.endereco_bairro,
@@ -225,7 +270,10 @@ export function GcsList() {
   if (gcsLoading || groupGcsLoading || categoriesLoading) {
     return (
       <div className="p-8">
-        <div className="text-center py-12">Carregando...</div>
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="mt-4 text-muted-foreground">Carregando...</p>
+        </div>
       </div>
     )
   }
@@ -236,7 +284,7 @@ export function GcsList() {
         <div>
           <h1 className="text-3xl font-bold">GC&apos;s</h1>
           <p className="text-muted-foreground mt-1">
-            Gerenciar Grupos de Casas
+            Gerenciar GCs
           </p>
         </div>
         <Button onClick={() => handleOpenDialog()}>
@@ -261,6 +309,7 @@ export function GcsList() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Foto</TableHead>
               <TableHead>Descrição</TableHead>
               <TableHead>Líder</TableHead>
               <TableHead>Grupo</TableHead>
@@ -274,15 +323,37 @@ export function GcsList() {
           <TableBody>
             {filteredGcs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                   Nenhum GC encontrado
                 </TableCell>
               </TableRow>
             ) : (
-              filteredGcs.map((gc) => (
+              paginatedData.map((gc) => (
                 <TableRow key={gc.id}>
+                  <TableCell>
+                    <LazyImage
+                      src={gc.foto_lider}
+                      alt={gc.lider}
+                      avatar
+                      size="md"
+                      fallback={gc.lider.charAt(0).toUpperCase()}
+                    />
+                  </TableCell>
                   <TableCell className="font-medium">{gc.descricao}</TableCell>
-                  <TableCell>{gc.lider}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {gc.foto_lider && (
+                        <LazyImage
+                          src={gc.foto_lider}
+                          alt={gc.lider}
+                          avatar
+                          size="sm"
+                          fallback={gc.lider.charAt(0)}
+                        />
+                      )}
+                      <span>{gc.lider}</span>
+                    </div>
+                  </TableCell>
                   <TableCell>{getGroupName(gc.id_grupo)}</TableCell>
                   <TableCell>{getCategoryName(gc.categoria_id)}</TableCell>
                   <TableCell>{gc.descricao_local || "-"}</TableCell>
@@ -317,6 +388,14 @@ export function GcsList() {
         </Table>
       </div>
 
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={goToPage}
+        />
+      )}
+
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -327,9 +406,9 @@ export function GcsList() {
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="grupo">Grupo de GC *</Label>
+              <Label htmlFor="grupo">Coordenador(es) *</Label>
               <Select
-                value={formData.id_grupo?.toString() || ""}
+                value={formData.id_grupo?.toString() || undefined}
                 onValueChange={(value) => setFormData({ ...formData, id_grupo: value ? parseInt(value) : null })}
               >
                 <SelectTrigger id="grupo">
@@ -337,9 +416,9 @@ export function GcsList() {
                 </SelectTrigger>
                 <SelectContent>
                   {groupGcs.length === 0 ? (
-                    <SelectItem value="" disabled>
+                    <div className="px-2 py-1.5 text-sm text-muted-foreground">
                       Nenhum grupo cadastrado
-                    </SelectItem>
+                    </div>
                   ) : (
                     groupGcs.map((group) => (
                       <SelectItem key={group.id} value={group.id.toString()}>
@@ -353,7 +432,7 @@ export function GcsList() {
             <div className="grid gap-2">
               <Label htmlFor="categoria">Categoria *</Label>
               <Select
-                value={formData.categoria_id?.toString() || ""}
+                value={formData.categoria_id?.toString() || undefined}
                 onValueChange={(value) => setFormData({ ...formData, categoria_id: value ? parseInt(value) : null })}
               >
                 <SelectTrigger id="categoria">
@@ -376,12 +455,83 @@ export function GcsList() {
                 onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
               />
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="lider">Líder(es) *</Label>
+                <Input
+                  id="lider"
+                  value={formData.lider}
+                  onChange={(e) => setFormData({ ...formData, lider: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="contato_lider">Contato (WhatsApp) do Líder</Label>
+                <Input
+                  id="contato_lider"
+                  type="tel"
+                  placeholder="(00) 00000-0000"
+                  value={formData.contato_lider}
+                  onChange={(e) => setFormData({ ...formData, contato_lider: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="lider_treinamento">Líder em Treinamento</Label>
+                <Input
+                  id="lider_treinamento"
+                  value={formData.lider_treinamento}
+                  onChange={(e) => setFormData({ ...formData, lider_treinamento: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="contato_lider_treinamento">Contato (WhatsApp)</Label>
+                <Input
+                  id="contato_lider_treinamento"
+                  type="tel"
+                  placeholder="(00) 00000-0000"
+                  value={formData.contato_lider_treinamento}
+                  onChange={(e) => setFormData({ ...formData, contato_lider_treinamento: e.target.value })}
+                />
+              </div>
+            </div>
             <div className="grid gap-2">
-              <Label htmlFor="lider">Líder *</Label>
+              <PhotoUpload
+                currentPhotoUrl={formData.foto_lider}
+                onUploadComplete={(url) => setFormData({ ...formData, foto_lider: url })}
+                folder="gcs"
+                fileName={selectedGc ? `lider-${selectedGc.id}` : undefined}
+                label="Foto do Líder"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="anfitrioes">Anfitriões</Label>
+                <Input
+                  id="anfitrioes"
+                  value={formData.anfitrioes}
+                  onChange={(e) => setFormData({ ...formData, anfitrioes: e.target.value })}
+                  placeholder="Nome dos donos da casa"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="contato_anfitrioes">Contato (WhatsApp) dos Anfitriões</Label>
+                <Input
+                  id="contato_anfitrioes"
+                  type="tel"
+                  placeholder="(00) 00000-0000"
+                  value={formData.contato_anfitrioes}
+                  onChange={(e) => setFormData({ ...formData, contato_anfitrioes: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="ponto_referencia">Ponto de Referência do Local</Label>
               <Input
-                id="lider"
-                value={formData.lider}
-                onChange={(e) => setFormData({ ...formData, lider: e.target.value })}
+                id="ponto_referencia"
+                value={formData.ponto_referencia}
+                onChange={(e) => setFormData({ ...formData, ponto_referencia: e.target.value })}
+                placeholder="Ex: Próximo ao mercado, em frente à praça..."
               />
             </div>
             <div className="grid gap-2">
@@ -432,7 +582,7 @@ export function GcsList() {
               <div className="grid gap-2">
                 <Label htmlFor="dia_semana">Dia da Semana</Label>
                 <Select
-                  value={formData.dia_semana || ""}
+                  value={formData.dia_semana || undefined}
                   onValueChange={(value) => setFormData({ ...formData, dia_semana: value })}
                 >
                   <SelectTrigger id="dia_semana">

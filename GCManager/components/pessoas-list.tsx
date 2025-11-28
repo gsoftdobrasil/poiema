@@ -96,7 +96,7 @@ export function PessoasList() {
     if (profile?.full_name && isDialogOpen && !selectedPerson && !formData.abordado_por) {
       setFormData(prev => ({ ...prev, abordado_por: profile.full_name || "" }))
     }
-  }, [profile, isDialogOpen, selectedPerson])
+  }, [profile, isDialogOpen, selectedPerson, formData.abordado_por])
 
   const handleOpenDialog = (person?: Person) => {
     if (person) {
@@ -439,7 +439,7 @@ export function PessoasList() {
             <div className="grid gap-2">
               <Label htmlFor="categoria_id">Categoria *</Label>
               <Select
-                value={formData.categoria_id?.toString() || ""}
+                value={formData.categoria_id?.toString() || undefined}
                 onValueChange={(value) => {
                   const catId = value ? parseInt(value) : null
                   setFormData({ ...formData, categoria_id: catId, gc_id: null })

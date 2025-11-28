@@ -44,12 +44,11 @@ import { Plus, Pencil, Trash2, Search } from "lucide-react"
 import type { Category } from "@/lib/types/database"
 
 const tipoLabels: Record<string, string> = {
+  masculino: "Masculino",
+  feminino: "Feminino",
   casais: "Casais",
-  solteiros_m: "Solteiros Masculino",
-  solteiros_f: "Solteiros Feminino",
-  jovens_m: "Jovens Masculino",
-  jovens_f: "Jovens Feminino",
-  adolescentes: "Adolescentes",
+  influa: "Influa",
+  infantil: "Infantil",
 }
 
 export function CategoriasList() {
@@ -62,9 +61,8 @@ export function CategoriasList() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
   const [formData, setFormData] = useState({
     descricao: "",
-    faixa_etaria_min: 0,
-    faixa_etaria_max: 0,
-    tipo: "casais",
+    tipo: "masculino",
+    cor: "#3B82F6",
   })
 
   const filteredCategories = categories.filter(cat =>
@@ -76,17 +74,15 @@ export function CategoriasList() {
       setSelectedCategory(category)
       setFormData({
         descricao: category.descricao,
-        faixa_etaria_min: category.faixa_etaria_min,
-        faixa_etaria_max: category.faixa_etaria_max,
         tipo: category.tipo,
+        cor: category.cor || "#3B82F6",
       })
     } else {
       setSelectedCategory(null)
       setFormData({
         descricao: "",
-        faixa_etaria_min: 0,
-        faixa_etaria_max: 0,
-        tipo: "casais",
+        tipo: "masculino",
+        cor: "#3B82F6",
       })
     }
     setIsDialogOpen(true)
@@ -95,7 +91,7 @@ export function CategoriasList() {
   const handleSave = async () => {
     if (!user) return
 
-    if (!formData.descricao || !formData.faixa_etaria_min || !formData.faixa_etaria_max) {
+    if (!formData.descricao || !formData.tipo || !formData.cor) {
       toast({
         title: "Erro",
         description: "Preencha todos os campos obrigatórios",
@@ -110,9 +106,8 @@ export function CategoriasList() {
           .from("categories")
           .update({
             descricao: formData.descricao,
-            faixa_etaria_min: formData.faixa_etaria_min,
-            faixa_etaria_max: formData.faixa_etaria_max,
             tipo: formData.tipo,
+            cor: formData.cor,
           })
           .eq("id", selectedCategory.id)
 
@@ -127,9 +122,8 @@ export function CategoriasList() {
           .from("categories")
           .insert({
             descricao: formData.descricao,
-            faixa_etaria_min: formData.faixa_etaria_min,
-            faixa_etaria_max: formData.faixa_etaria_max,
             tipo: formData.tipo,
+            cor: formData.cor,
             user_id: user.id,
           })
 
@@ -224,14 +218,13 @@ export function CategoriasList() {
             <TableRow>
               <TableHead>Descrição</TableHead>
               <TableHead>Tipo</TableHead>
-              <TableHead>Faixa Etária</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredCategories.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
                   Nenhuma categoria encontrada
                 </TableCell>
               </TableRow>
@@ -240,10 +233,15 @@ export function CategoriasList() {
                 <TableRow key={category.id}>
                   <TableCell className="font-medium">{category.descricao}</TableCell>
                   <TableCell>
-                    <Badge variant="secondary">{tipoLabels[category.tipo] || category.tipo}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    {category.faixa_etaria_min} - {category.faixa_etaria_max} anos
+                    <Badge 
+                      variant="secondary" 
+                      style={{ 
+                        backgroundColor: category.cor || "#3B82F6",
+                        color: "#fff"
+                      }}
+                    >
+                      {tipoLabels[category.tipo] || category.tipo}
+                    </Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
@@ -297,32 +295,30 @@ export function CategoriasList() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="masculino">Masculino</SelectItem>
+                  <SelectItem value="feminino">Feminino</SelectItem>
                   <SelectItem value="casais">Casais</SelectItem>
-                  <SelectItem value="solteiros_m">Solteiros Masculino</SelectItem>
-                  <SelectItem value="solteiros_f">Solteiros Feminino</SelectItem>
-                  <SelectItem value="jovens_m">Jovens Masculino</SelectItem>
-                  <SelectItem value="jovens_f">Jovens Feminino</SelectItem>
-                  <SelectItem value="adolescentes">Adolescentes</SelectItem>
+                  <SelectItem value="influa">Influa</SelectItem>
+                  <SelectItem value="infantil">Infantil</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="faixa_etaria_min">Idade Mínima *</Label>
+            <div className="grid gap-2">
+              <Label htmlFor="cor">Cor *</Label>
+              <div className="flex items-center gap-3">
                 <Input
-                  id="faixa_etaria_min"
-                  type="number"
-                  value={formData.faixa_etaria_min}
-                  onChange={(e) => setFormData({ ...formData, faixa_etaria_min: parseInt(e.target.value) || 0 })}
+                  id="cor"
+                  type="color"
+                  value={formData.cor}
+                  onChange={(e) => setFormData({ ...formData, cor: e.target.value })}
+                  className="h-10 w-20 cursor-pointer"
                 />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="faixa_etaria_max">Idade Máxima *</Label>
                 <Input
-                  id="faixa_etaria_max"
-                  type="number"
-                  value={formData.faixa_etaria_max}
-                  onChange={(e) => setFormData({ ...formData, faixa_etaria_max: parseInt(e.target.value) || 0 })}
+                  type="text"
+                  value={formData.cor}
+                  onChange={(e) => setFormData({ ...formData, cor: e.target.value })}
+                  placeholder="#3B82F6"
+                  className="flex-1"
                 />
               </div>
             </div>

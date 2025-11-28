@@ -135,7 +135,7 @@ export function Dashboard() {
     } finally {
       setLoading(false)
     }
-  }, [user, people, period, category, supabase])
+  }, [user, people, period, supabase])
 
   useEffect(() => {
     if (!user) {
